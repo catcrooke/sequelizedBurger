@@ -1,42 +1,49 @@
 // require express
 var express = require("express");
 
-// middleware passes
-var router = express.Router();
+var db = require("../models");
 
-// Import the model (burger.js) to use its database functions and set it equal to a variable
-var burgers = require("../models/burger.js");
-
-// ROUTERs- the code below points to the server with route files which are a map of how to respond
-router.put("/update", function(req, res, next) {
-
-    burgers.update({ 'devoured': true }, 'burger_name="' + req.body.burger_name + '"', function() {
-        res.redirect("/");
+module.exports = function(app) {
+    // find all the burgers and return them to the user with res.json
+    app.get("/", function(req, res) {
+        db.Burger.findAll({}).then(function(dbResponse) {
+            res.render("index", { burger: dbResponse });
+        });
     });
-});
-// get requests are used to read a representation of a resource
-router.get("/", function(req, res) {
-    burgers.all(function(data) {
-        var hbsObject = {
-            burger: data
-        };
-        res.render("index", hbsObject);
+
+    // app.put("/", function(req, res, next) {
+    //     db.Burger.findOne({
+    //         where: {
+    //             id: req.params.id
+    //         }
+    //     }).then(function(burger_db) {
+    //         res.json(burger_db);
+    //     });
+
+    // .then function to burgers.update({ 'devoured': true }, 'burger_name="' + req.body.burger_name + '"', function() {
+    //     res.redirect("/");
+    // });
+    // });
+
+
+    // post is used to create new resources, or in this example, create a new burger
+    app.post("/", function(req, res) {
+        // Create an Burger with the data available to us in req.body
+        console.log(req.body);
+        db.Burger.create(req.body).then(function(burger_db) {
+            // res.json(burger_db);
+            res.redirect("/");
+        });
     });
-});
-
-// post is used to create new resources, or in this example, create a new burger
-router.post("/", function(req, res) {
-    console.log(req.body);
-    burgers.create([
-
-        "burger_name", "devoured"
-    ], [
-        req.body.burger_name, false
-    ], function() {
-        res.redirect("/");
+    app.delete("/", function(req, res) {
+        // Delete the Burger with the id available to us in req.params.id
+        db.Burger.destroy({
+            where: {
+                id: req.params.id
+            }
+        }).then(function(burger_db) {
+            res.json(burger_db);
+        });
     });
-});
 
-
-// Export routes for server.js to use.
-module.exports = router;
+};
