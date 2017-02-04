@@ -1,3 +1,4 @@
+// creating the table called Burger(s)
 module.exports = function(sequelize, DataTypes) {
     var Burger = sequelize.define("Burger", {
         burger_name: {

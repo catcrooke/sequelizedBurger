@@ -10,12 +10,13 @@ var PORT = process.env.PORT || 3000;
 // Requiring our models for syncing
 var db = require("./models");
 
-// Sets up the Express app to handle data parsing
+// Sets up the Express app to handle data parsing (middleware)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.text());
 app.use(bodyParser.json({ type: "application/vnd.api+json" }));
 
+// changes methods in forms from posts to puts
 app.use(methodOverride('_method'));
 
 // Set Handlebars.
@@ -30,11 +31,9 @@ app.use(express.static('public'));
 // Import routes and give the server access to them.
 var routes = require("./controllers/burger_controller.js")(app);
 
-// app.use("/", routes);
-
-
-// Starts the server to begin listening
-db.sequelize.sync({ force: true }).then(function() {
+// sequelize is syncing to the database and then..
+db.sequelize.sync().then(function() {
+    // Starts the server to begin listening
     app.listen(PORT, function() {
         console.log("App listening on PORT " + PORT);
     });
